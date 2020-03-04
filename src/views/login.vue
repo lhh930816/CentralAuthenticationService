@@ -1,9 +1,14 @@
 <template>
   <div class="login-container">
-    <el-form ref="loginForm" :model="loginForm"  class="login-form" autocomplete="on" label-position="left">
-
+    <el-form
+      ref="loginForm"
+      :model="loginForm"
+      class="login-form"
+      autocomplete="on"
+      label-position="left"
+    >
       <div class="title-container">
-        <h3 class="title">360患者视图</h3>
+        <h3 class="title">统一认证平台</h3>
       </div>
 
       <el-form-item prop="username">
@@ -24,7 +29,7 @@
       <el-tooltip v-model="capsTooltip" content="Caps lock is On" placement="right" manual>
         <el-form-item prop="password">
           <span class="svg-container">
-             <i class="iconfont icon-icon_suo-"></i>
+            <i class="iconfont icon-icon_suo-"></i>
           </span>
           <el-input
             :key="passwordType"
@@ -40,74 +45,104 @@
             @keyup.enter.native="handleLogin"
           />
           <span class="show-pwd" @click="showPwd">
-               <i :class="passwordType === 'password' ? 'iconfont icon-yanjing1' : 'iconfont icon-yanjing'" ></i>
+            <i
+              :class="passwordType === 'password' ? 'iconfont icon-yanjing1' : 'iconfont icon-yanjing'"
+            ></i>
           </span>
         </el-form-item>
       </el-tooltip>
 
-      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">登录</el-button>
-
+      <el-button
+        :loading="loading"
+        type="primary"
+        style="width:100%;margin-bottom:30px;"
+        @click.native.prevent="handleLogin"
+      >登录</el-button>
     </el-form>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'Login',
+  name: "Login",
   data() {
     return {
       loginForm: {
-        username: '',
-        password: ''
+        username: "test",
+        password: "123456"
       },
-      passwordType: 'password',
+      passwordType: "password",
       capsTooltip: false,
       loading: false,
       redirect: undefined,
       otherQuery: {}
-    }
+    };
   },
   mounted() {
-    if (this.loginForm.username === '') {
-      this.$refs.username.focus()
-    } else if (this.loginForm.password === '') {
-      this.$refs.password.focus()
+    if (this.loginForm.username === "") {
+      this.$refs.username.focus();
+    } else if (this.loginForm.password === "") {
+      this.$refs.password.focus();
     }
   },
   methods: {
     checkCapslock({ shiftKey, key } = {}) {
       if (key && key.length === 1) {
-        if (shiftKey && (key >= 'a' && key <= 'z') || !shiftKey && (key >= 'A' && key <= 'Z')) {
-          this.capsTooltip = true
+        if (
+          (shiftKey && key >= "a" && key <= "z") ||
+          (!shiftKey && key >= "A" && key <= "Z")
+        ) {
+          this.capsTooltip = true;
         } else {
-          this.capsTooltip = false
+          this.capsTooltip = false;
         }
       }
-      if (key === 'CapsLock' && this.capsTooltip === true) {
-        this.capsTooltip = false
+      if (key === "CapsLock" && this.capsTooltip === true) {
+        this.capsTooltip = false;
       }
     },
     showPwd() {
-      if (this.passwordType === 'password') {
-        this.passwordType = ''
+      if (this.passwordType === "password") {
+        this.passwordType = "";
       } else {
-        this.passwordType = 'password'
+        this.passwordType = "password";
       }
       this.$nextTick(() => {
-        this.$refs.password.focus()
-      })
+        this.$refs.password.focus();
+      });
     },
     handleLogin() {
+      let formData = new FormData();
+      formData.append("client_id", this.$store.getters.app.client_id);
+      formData.append("client_secret", this.$store.getters.app.client_secret);
+      formData.append("grant_type", this.$store.getters.app.grant_type);
+      formData.append("scope", this.$store.getters.app.scope);
+      formData.append("username", this.loginForm.username);
+      formData.append("password", this.loginForm.password);
 
+      this.$http
+        .post("/connect/token", formData)
+        .then(res => {
+          if (res.access_token) {
+            this.$store.dispatch("user/setToken", res.access_token);
+          }
+          this.$router.push({ name: "callback", params: { returnUrl: "/" } });
+        })
+        .catch(res => {
+          this.$notify({
+            title: "系统提示",
+            message: res.message || "请求失败",
+            type: "warning"
+          });
+        });
     }
   }
-}
+};
 </script>
 
 <style lang="scss">
-
-$bg:#283443;
-$light_gray:#fff;
+$bg: #283443;
+$light_gray: #fff;
 $cursor: #fff;
 
 @supports (-webkit-mask: none) and (not (cater-color: $cursor)) {
@@ -150,9 +185,9 @@ $cursor: #fff;
 </style>
 
 <style lang="scss" scoped>
-$bg:#2d3a4b;
-$dark_gray:#889aa4;
-$light_gray:#eee;
+$bg: #2d3a4b;
+$dark_gray: #889aa4;
+$light_gray: #eee;
 
 .login-container {
   min-height: 100%;

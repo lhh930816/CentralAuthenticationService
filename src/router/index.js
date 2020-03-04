@@ -3,10 +3,20 @@ import Router from 'vue-router'
 Vue.use(Router)
 
 export default new Router({
-  routes: [
-    {
+  routes: [{
       path: '/login',
-      component: () => import('@/views/login/index'),
+      name: 'login',
+      component: () => import('@/views/login')
+    },
+    {
+      path: '/callback',
+      name: 'callback',
+      component: () => import('@/views/callback')
+    },
+    {
+      path: "/error",
+      name: "error",
+      component: () => import('@/views/error-page/500')
     }
   ]
 })

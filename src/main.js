@@ -6,7 +6,14 @@ import router from './router'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import './assets/iconfont/iconfont.css'
+import Vuex from 'vuex'
+import store from './store'
+import axios from '@/util/http'
+
 Vue.config.productionTip = false
+Vue.prototype.$http = axios
+
+Vue.use(Vuex)
 Vue.use(ElementUI, {
   size: 'small'
 })
@@ -14,5 +21,6 @@ Vue.use(ElementUI, {
 new Vue({
   el: '#app',
   router,
+  store,
   render: h => h(App)
 })
