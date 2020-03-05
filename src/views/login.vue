@@ -69,7 +69,7 @@ export default {
     return {
       loginForm: {
         username: "10973",
-        password: "123456"
+        password: "sys"
       },
       passwordType: "password",
       capsTooltip: false,
@@ -126,7 +126,7 @@ export default {
           if (res.access_token) {
             this.$store.dispatch("user/setToken", res.access_token);
           }
-          this.$router.push({ name: "callback", params: { returnUrl: "/" } });
+          this.$router.push({ path: "/callback", query: { returnUrl: "/" } });
         })
         .catch(res => {
           this.$notify({

@@ -4,7 +4,7 @@ export default {
     client_secret: "secret",
     response_type: "code",
     grant_type: "password",
-    scope: "Identity",
+    scope: "openid",
   },
   namespaced: true,
   actions: {},

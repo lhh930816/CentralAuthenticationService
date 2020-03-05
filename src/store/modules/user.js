@@ -4,7 +4,8 @@ export default {
      * 请求令牌
      */
     token: '',
-    name: "李医生"
+    id: '',
+    name: ''
   },
   namespaced: true,
   actions: {
@@ -16,6 +17,14 @@ export default {
     setToken(context, token) {
       context.commit('setToken', token);
     },
+    /**
+     * 设置用户信息
+     * @param {any} context 
+     * @param {any} user 
+     */
+    setUser(context, user) {
+      context.commit('setUser', user);
+    }
   },
   mutations: {
     /**
@@ -25,11 +34,21 @@ export default {
      */
     setToken(state, token) {
       state.token = token;
-      sessionStorage.setItem("info", token);
+      sessionStorage.setItem('info', token);
+    },
+    /**
+     * 设置用户信息
+     * @param {any} state 
+     * @param {any} user 
+     */
+    setUser(state, user) {
+      state.id = user.id;
+      state.name = user.name;
     }
   },
   getters: {
-    token: state => state.token || sessionStorage.getItem("info"),
+    token: state => state.token,
+    id: state => state.id,
     name: state => state.name
   }
 }
