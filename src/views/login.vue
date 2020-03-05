@@ -68,7 +68,7 @@ export default {
   data() {
     return {
       loginForm: {
-        username: "test",
+        username: "10973",
         password: "123456"
       },
       passwordType: "password",
@@ -118,7 +118,7 @@ export default {
       formData.append("grant_type", this.$store.getters.app.grant_type);
       formData.append("scope", this.$store.getters.app.scope);
       formData.append("username", this.loginForm.username);
-      formData.append("password", this.loginForm.password);
+      formData.append("password", this.$md5(this.loginForm.password));
 
       this.$http
         .post("/connect/token", formData)

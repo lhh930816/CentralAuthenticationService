@@ -53,9 +53,9 @@ service.interceptors.response.use(
   },
   error => {
     var data = {
-      code: error.response.status,
-      message: error.response.data.error || "系统请求失败，请稍后重试",
-      data: error.response.data
+      code: error.response && error.response.status || 500,
+      message: error.response && error.response.data.error_description || "系统请求失败，请稍后重试",
+      data: error.response && error.response.data || error
     };
     return Promise.reject(data);
   }

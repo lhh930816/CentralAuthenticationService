@@ -9,9 +9,11 @@ import './assets/iconfont/iconfont.css'
 import Vuex from 'vuex'
 import store from './store'
 import axios from '@/util/http'
+import md5 from 'js-md5'
 
 Vue.config.productionTip = false
 Vue.prototype.$http = axios
+Vue.prototype.$md5 = md5
 
 Vue.use(Vuex)
 Vue.use(ElementUI, {
