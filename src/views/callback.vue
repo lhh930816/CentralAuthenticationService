@@ -22,8 +22,10 @@ export default {
             id: res.sub || "",
             name: res.name || ""
           });
+          //获取权限 leader doctor
+          //跳转到对应页面
           this.$router.push({
-            path: this.$route.query.returnUrl,
+            path: "/",//this.$route.query.returnUrl,
             query: { access_token: this.$store.getters.user.token }
           });
         })

@@ -3,6 +3,7 @@
     <el-form
       ref="loginForm"
       :model="loginForm"
+      :rules="loginRules"
       class="login-form"
       autocomplete="on"
       label-position="left"
@@ -10,7 +11,6 @@
       <div class="title-container">
         <h3 class="title">统一认证平台</h3>
       </div>
-
       <el-form-item prop="username">
         <span class="svg-container">
           <i class="el-icon-user-solid"></i>
@@ -42,7 +42,7 @@
             autocomplete="on"
             @keyup.native="checkCapslock"
             @blur="capsTooltip = false"
-            @keyup.enter.native="handleLogin"
+            @keyup.enter.native="handleLogin('loginForm')"
           />
           <span class="show-pwd" @click="showPwd">
             <i
@@ -56,7 +56,7 @@
         :loading="loading"
         type="primary"
         style="width:100%;margin-bottom:30px;"
-        @click.native.prevent="handleLogin"
+        @click="handleLogin('loginForm')"
       >登录</el-button>
     </el-form>
   </div>
@@ -66,10 +66,28 @@
 export default {
   name: "Login",
   data() {
+     const validateUsername = (rule, value, callback) => {
+      if (value.length < 3) {
+        callback(new Error('请输入至少三位账号'));
+      }else {
+        callback ();
+      }
+    }  
+    const validatePassword = (rule, value, callback) => {
+      if (value.length < 3) {
+        callback(new Error('请输入至少三位密码'));
+      } else {
+        callback();
+      }
+    }
     return {
       loginForm: {
         username: "10973",
         password: "sys"
+      },
+      loginRules: {
+        username: [{ required: true, trigger: 'blur', validator: validateUsername }],
+        password: [{ required: true, trigger: 'blur', validator: validatePassword }]
       },
       passwordType: "password",
       capsTooltip: false,
@@ -111,30 +129,44 @@ export default {
         this.$refs.password.focus();
       });
     },
-    handleLogin() {
-      let formData = new FormData();
-      formData.append("client_id", this.$store.getters.app.client_id);
-      formData.append("client_secret", this.$store.getters.app.client_secret);
-      formData.append("grant_type", this.$store.getters.app.grant_type);
-      formData.append("scope", this.$store.getters.app.scope);
-      formData.append("username", this.loginForm.username);
-      formData.append("password", this.$md5(this.loginForm.password));
-
-      this.$http
-        .post("/connect/token", formData)
-        .then(res => {
-          if (res.access_token) {
-            this.$store.dispatch("user/setToken", res.access_token);
-          }
-          this.$router.push({ path: "/callback", query: { returnUrl: "/" } });
-        })
-        .catch(res => {
-          this.$notify({
-            title: "系统提示",
-            message: res.message || "请求失败",
-            type: "warning"
+    handleLogin(formName) {
+      this.$refs[formName].validate((valid) => {
+        if(valid) {
+          this.loading = true
+          let formData = new FormData();
+          formData.append("client_id", this.$store.getters.app.client_id);
+          formData.append("client_secret", this.$store.getters.app.client_secret);
+          formData.append("grant_type", this.$store.getters.app.grant_type);
+          formData.append("scope", this.$store.getters.app.scope);
+          formData.append("username", this.loginForm.username);
+          formData.append("password", this.$md5(this.loginForm.password));
+          let returnUrl = this.$route.query.returnUrl || "http://localhost:8080";
+          this.$http
+          .post("/api/account/login", {
+            username: this.loginForm.username,
+            password: this.$md5(this.loginForm.password)
+          })
+          .then(res => {
+            if (res.access_token) {
+              this.$store.dispatch("user/setToken", res.access_token);
+            }
+            window.location.href = returnUrl+"#/index?access_token="+this.$store.getters.user.token;
+            // this.$router.push({ path: returnUrl, query: { access_token: this.$store.getters.user.token }});
+            this.loading = false
+         })
+          .catch(res => {
+            this.loading = false
+            this.$notify({
+              title: "系统提示",
+              message: res.message || "请求失败",
+              type: "warning"
+            });
           });
-        });
+        }else {
+          return false;
+        }
+      })
+      
     }
   }
 };
