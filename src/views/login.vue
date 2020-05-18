@@ -82,8 +82,8 @@ export default {
     }
     return {
       loginForm: {
-        username: "10973",
-        password: "sys"
+        username: "",
+        password: ""
       },
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
@@ -140,7 +140,7 @@ export default {
           formData.append("scope", this.$store.getters.app.scope);
           formData.append("username", this.loginForm.username);
           formData.append("password", this.$md5(this.loginForm.password));
-          let returnUrl = this.$route.query.returnUrl || "http://localhost:8080";
+          let returnUrl = this.$route.query.returnUrl || "http://106.58.171.222:9000/360PatientView";
           this.$http
           .post("/api/account/login", {
             username: this.loginForm.username,
@@ -149,9 +149,14 @@ export default {
           .then(res => {
             if (res.access_token) {
               this.$store.dispatch("user/setToken", res.access_token);
+              window.location.href = returnUrl+"#/callback?access_token="+this.$store.getters.user.token;
+            }else {
+               this.$notify({
+                title: "系统提示",
+                message: res.Message || "请求失败",
+                type: "warning"
+              });
             }
-            window.location.href = returnUrl+"#/index?access_token="+this.$store.getters.user.token;
-            // this.$router.push({ path: returnUrl, query: { access_token: this.$store.getters.user.token }});
             this.loading = false
          })
           .catch(res => {
@@ -165,8 +170,7 @@ export default {
         }else {
           return false;
         }
-      })
-      
+      });
     }
   }
 };
